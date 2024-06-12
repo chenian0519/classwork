@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>Document</title>
+    <style>
+        .main{
+            display: flex;
+            flex-wrap: wrap;
+            height: 600px;
+        }
+        .grid{
+            width: 24.7%;
+            height: 300px;
+            border: 1px solid black;
+            position: relative;
+        }
+        .dot {
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: red;
+            z-index: 1px;
+        }
+        .face {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: auto;
+            top:10px;
+        }
+        
+        .eye {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pupil {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: black;
+            border-radius: 50%;
+        }
+        button{
+            position: absolute;
+            z-index: 99999999px;
+        }
+        #Pen{
+            top:0;
+            left:80%;
+        }
+        #eraser{
+            top:40px;
+            left:80%;
+        }
+        #Pen1{
+            top:0;
+            left:80%;
+        }
+        #eraser1{
+            top:40px;
+            left:80%;
+        }
+        #g4 {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Standard */
+        }
+        #g2 {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Standard */
+        }
+        #textArea {
+            width: 300px;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+        .magnifier {
+            position: fixed; /* Use fixed positioning */
+            border: 3px solid #000;
+            border-radius: 50%;
+            cursor: none;
+            width: 150px;
+            height:150px;
+            display: none;
+            z-index: 10;
+            overflow: hidden;
+            pointer-events: none; /* Ensure it does not block mouse events */
+        }
+        .magnifier img {
+            position: absolute;
+            width: 400%;
+            height: 400%;
+        }
+        .magnifier2 {
+            position: absolute;
+            border: 2px solid black;
+            border-radius: 50%;
+            overflow: hidden;
+            width: 150px;
+            height: 150px;
+            display: none;
+            pointer-events: none;
+            background-color: white;
+        }
+    
+        .magnifier2 img {
+            position: absolute;
+        }
+        #g8{
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .clr{
+            width: 32.9%;
+            height: 32.9%;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div class="main" id="main">
+        <div id="g1" class="grid">
+            <p>抓Event部分參數顯示</p>
+            <p id="g1p1"></p>
+            <p id="g1p2"></p>
+            <p id="g1p3"></p>
+            <p id="g1p4"></p>
+            <p id="g1p5"></p>
+            <script>
+                document.getElementById('g1').addEventListener('click',(event)=>{
+                    const g1p1 = document.getElementById('g1p1');
+                    const g1p2 = document.getElementById('g1p2');
+                    const g1p3 = document.getElementById('g1p3');
+                    const g1p4 = document.getElementById('g1p4');
+                    const g1p5 = document.getElementById('g1p5');
+                    let s = "不可以";
+                    console.log(event)
+                    g1p1.textContent = `X座標為: ${event.offsetX}`;
+                    g1p2.textContent = `Y座標為: ${event.offsetY}`;
+                    if(event.cancelable){
+                        s = "可以";
+                    }else{
+                        s = "不可以";
+                    }
+                    if(event.ctrlKey){
+                        g1p4.textContent = `CTRL鍵是否被按下後點擊: ${"有"}`;
+                    }else{
+                        g1p4.textContent = `CTRL鍵是否被按下後點擊: ${"沒有"}`;
+                    }
+                    if(event.shiftKey){
+                        g1p5.textContent = `SHIFT鍵是否被按下後點擊: ${"有"}`;
+                    }else{
+                        g1p5.textContent = `SHIFT鍵是否被按下後點擊: ${"沒有"}`;
+                    }
+                    g1p3.textContent = `是否可取消此事件: ${s}`;
+
+                })
+            </script>
+        </div>
+        <div id="g2" class="grid">
+            <p>畫筆效果</p>
+            <script>
+                const g2 = document.getElementById('g2');
+                let isDraw = false;
+                
+                g2.addEventListener('mousedown', (e) => {
+                    isDrawing = true;
+                    const rect = g2.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    drawDotG2(x, y);
+                });
+        
+                g2.addEventListener('mousemove', (e) => {
+                    if (isDrawing) {
+                        const rect = g2.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        drawDotG2(x, y);
+                    }
+                });
+        
+                g2.addEventListener('mouseup', () => {
+                    isDrawing = false;
+                });
+        
+                g2.addEventListener('mouseleave', () => {
+                    isDrawing = false;
+                });
+                
+                function drawDotG2(x, y) {
+                    const dot = document.createElement('div');
+                        dot.classList.add('dot');
+                        dot.style.backgroundColor = 'blue';
+                        dot.style.width = '20px';
+                        dot.style.height = '20px';
+                        dot.style.left = `${x}px`;
+                        dot.style.top = `${y}px`;
+                        g2.appendChild(dot);
+                }
+                             
+            </script>
+        </div>
+        <div id="g3" class="grid">
+            <p>眼球追蹤</p>
+            <div class="face">
+                <div class="eye" id="left-eye">
+                    <div class="pupil"></div>
+                </div>
+                <div class="eye" id="right-eye">
+                    <div class="pupil"></div>
+                </div>
+            </div>
+            <script>
+                const g3 = document.getElementById('g3');
+                g3.addEventListener('mousemove', (event) => {
+                    const eyes = document.querySelectorAll('.eye');
+                    eyes.forEach(eye => {
+                        const rect = eye.getBoundingClientRect();
+                        const eyeX = rect.left + rect.width / 2;
+                        const eyeY = rect.top + rect.height / 2;
+                        const deltaX = event.clientX - eyeX;
+                        const deltaY = event.clientY - eyeY;
+                        const angle = Math.atan2(deltaY, deltaX);
+                        const pupil = eye.querySelector('.pupil');
+                        const pupilRadius = eye.offsetWidth / 4;
+                        const moveX = pupilRadius * Math.cos(angle);
+                        const moveY = pupilRadius * Math.sin(angle);
+                        pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                    });
+                });
+            </script>
+        </div>
+        <div id="g4" class="grid">
+            <p>增加橡皮擦</p>
+            <button id="Pen">畫筆</button>
+            <button id="eraser">橡皮擦</button>
+            <script>
+                const g4 = document.getElementById('g4');
+                let isDrawing = false;
+                let currentTool = 'pen';
+        
+                document.getElementById('Pen').addEventListener('click', () => {
+                    currentTool = 'pen';
+                });
+        
+                document.getElementById('eraser').addEventListener('click', () => {
+                    currentTool = 'eraser';
+                });
+        
+                g4.addEventListener('mousedown', (e) => {
+                    isDrawing = true;
+                    const rect = g4.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    drawDotG4(x, y);
+                });
+        
+                g4.addEventListener('mousemove', (e) => {
+                    if (isDrawing) {
+                        const rect = g4.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        drawDotG4(x, y);
+                    }
+                });
+        
+                g4.addEventListener('mouseup', () => {
+                    isDrawing = false;
+                });
+        
+                g4.addEventListener('mouseleave', () => {
+                    isDrawing = false;
+                });
+        
+                function drawDotG4(x, y) {
+                    if (currentTool === 'pen') {
+                        const dot = document.createElement('div');
+                        dot.classList.add('dot');
+                        dot.style.backgroundColor = 'red';
+                        dot.style.width = '20px';
+                        dot.style.height = '20px';
+                        dot.style.left = `${x}px`;
+                        dot.style.top = `${y}px`;
+                        g4.appendChild(dot);
+                    } else if (currentTool === 'eraser') {
+                        const dots = document.querySelectorAll('#g4 .dot');
+                        dots.forEach(dot => {
+                            const dotRect = dot.getBoundingClientRect();
+                            const dotX = dotRect.left + dotRect.width / 2 - g4.getBoundingClientRect().left;
+                            const dotY = dotRect.top + dotRect.height / 2 - g4.getBoundingClientRect().top;
+                            const distance = Math.sqrt(Math.pow(dotX - x, 2) + Math.pow(dotY - y, 2));
+                            if (distance < 10) {  // 檢測距離以刪除畫筆點
+                                dot.remove();
+                            }
+                        });
+                    }
+                }
+            </script>
+        </div>
+        <div id="g5" class="grid">
+            <p>區域放大鏡</p>
+            <div id="textArea">
+                <p>這是一個可放大的文字區域。將鼠標移動到此處會顯示放大鏡效果。</p>
+                <div class="magnifier" id="magnifier1">
+                    <img src="" alt="">
+                </div>
+            </div>
+            <script>
+                const magnifier1 = document.getElementById('magnifier1');
+                document.addEventListener('DOMContentLoaded', function() {
+                    const textArea = document.getElementById('textArea');
+                    const magnifier1Img = magnifier1.querySelector('img');
+                        // 產生文字區域內容的快照
+                        html2canvas(textArea).then(canvas => {
+                            magnifier1Img.src = canvas.toDataURL();
+                        });
+
+                        textArea.addEventListener('mousemove', function(event) {
+                            const rect = textArea.getBoundingClientRect();
+                            const x = event.clientX - rect.left;
+                            const y = event.clientY - rect.top;
+
+                            // 將放大鏡位置設定為以滑鼠指標為中心
+                            magnifier1.style.left = `${event.clientX - magnifier1.offsetWidth / 2}px`;
+                            magnifier1.style.top = `${event.clientY - magnifier1.offsetHeight / 2}px`;
+                            magnifier1.style.display = 'block';
+
+                            // 計算放大影像的位置
+                            const imgX = -x * 2 + magnifier1.offsetWidth / 2;
+                            const imgY = -y * 5 + magnifier1.offsetHeight / 2;
+
+                            // 移動放大鏡影像以建立縮放效果
+                            magnifier1Img.style.left = `${imgX}px`;
+                            magnifier1Img.style.top = `${imgY}px`;
+                        });
+
+                        textArea.addEventListener('mouseleave', function() {
+                            magnifier1.style.display = 'none';
+                        });
+                });
+            </script>            
+        </div>
+        <div id="g6" class="grid">
+            <p>全域放大鏡</p>
+            <button onclick="toggleMagnifier()">開啟/關閉放大鏡</button>
+            <div class="magnifier2" id="magnifier2">
+                <img id="magnifierImage" src="" alt="">
+            </div>
+            <script>
+                let isMagnifierActive = false;
+                const main = document.getElementById('main');
+                const magnifier2 = document.getElementById('magnifier2');
+                const magnifierImg = document.getElementById('magnifierImage');
+            
+                document.addEventListener('mousemove', (e) => {
+                    if (isMagnifierActive) {
+                        magnifier1.style.display = "none";
+                        const rect2 = document.body.getBoundingClientRect();
+                        const x = e.clientX-400;
+                        const y = e.clientY-350;
+                        console.log(x,y)
+        
+                        magnifier2.style.left = `${x - magnifier2.offsetWidth / 2}px`;
+                        magnifier2.style.top = `${y - magnifier2.offsetHeight / 2}px`;
+        
+                        const imgX = -x * 1.25 + magnifier2.offsetWidth / 2;
+                        const imgY = -y * 1.25 + magnifier2.offsetHeight / 2;
+        
+                        magnifierImg.style.left = `${imgX-450}px`;
+                        magnifierImg.style.top = `${imgY-350}px`;
+                    }
+                });
+            
+                function toggleMagnifier() {
+                    if (isMagnifierActive) {
+                        magnifier2.style.display = 'none'; // 隱藏放大鏡
+                        isMagnifierActive = false;
+                    } else {
+                        magnifier2.style.display = 'none'; // 先隱藏放大鏡
+                        html2canvas(document.body, {
+                            ignoreElements: function(element) {
+                                return element.id === 'magnifier2';
+                            }
+                        }).then(canvas => {
+                            magnifierImg.src = canvas.toDataURL();
+                            magnifier2.style.display = 'block'; // 顯示放大鏡
+                        });
+                        isMagnifierActive = true;
+                    }
+                }
+            
+                // 初始化時隱藏放大鏡
+                magnifier2.style.display = 'none';
+            </script>
+        </div>
+        <div id="g7" class="grid">
+            <p>點擊計數器遊戲</p>
+    <p id="score">得分: 0</p>
+    <p id="time">剩餘時間: 10 秒</p>
+    <div id="target" class="dot"></div>
+    <button id="restartButton" style="display: none;">重新開始</button>
+    <script>
+        const target = document.getElementById('target');
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const restartButton = document.getElementById('restartButton');
+        let score = 0;
+        let timeLeft = 10;
+        let gameInterval;
+
+        // 將紅點隨機放置在 g7 內的不同位置
+        function moveTarget() {
+            const g7 = document.getElementById('g7');
+            const rect = g7.getBoundingClientRect();
+            const x = Math.random() * (rect.width - 20);
+            const y = Math.random() * (rect.height - 20);
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+        }
+
+        // 點擊紅點時增加得分並移動紅點
+        target.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = `得分: ${score}`;
+            moveTarget();
+        });
+
+        // 倒計時函數
+        function countdown() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                timeDisplay.textContent = `剩餘時間: ${timeLeft} 秒`;
+            } else {
+                clearInterval(gameInterval);
+                alert(`遊戲結束！您的最終得分是 ${score}`);
+                restartButton.style.display = 'block';
+            }
+        }
+
+        // 重新開始遊戲函數
+        function restartGame() {
+            restartButton.style.display = 'none';
+            startGame();
+        }
+
+        // 開始遊戲
+        function startGame() {
+            score = 0;
+            timeLeft = 10;
+            scoreDisplay.textContent = `得分: ${score}`;
+            timeDisplay.textContent = `剩餘時間: ${timeLeft} 秒`;
+            moveTarget();
+            gameInterval = setInterval(countdown, 1000);
+        }
+
+        // 綁定重新開始按鈕的點擊事件
+        restartButton.addEventListener('click', restartGame);
+
+        // 開始遊戲
+        startGame();
+    </script>
+        </div>
+        <div id="g8" class="grid">
+            <div id="c1" class="clr">
+                <button onclick="showDate()">顯示日期</button>
+                <p id="dateDisplay" style="display: none;"></p>
+                <script>
+                    function showDate() {
+                        const dateDisplay = document.getElementById('dateDisplay');
+                        const currentDate = new Date();
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        dateDisplay.textContent = currentDate.toLocaleDateString('zh-TW', options);
+                        dateDisplay.style.display = 'block';
+                    }
+                </script>
+            </div>
+            <div id="c2" class="clr">
+                <button onclick="showWelcomeMessage()">歡迎訊息</button>
+                <p id="welcomeMessage" style="display: none;"></p>
+                <script>
+                    function showWelcomeMessage() {
+                        const welcomeMessage = document.getElementById('welcomeMessage');
+                        const currentHour = new Date().getHours();
+        
+                        let greeting;
+                        if (currentHour < 12) {
+                            greeting = '早上好';
+                        } else if (currentHour < 18) {
+                            greeting = '下午好';
+                        } else {
+                            greeting = '晚上好';
+                        }
+        
+                        welcomeMessage.textContent = greeting + '！歡迎光臨本網站。';
+                        welcomeMessage.style.display = 'block';
+                    }
+                </script>   
+            </div>
+            <div id="c3" class="clr">
+                <button onclick="showQuote()">顯示引言</button>
+                <p id="quoteDisplay" style="display: none;"></p>
+                <script>
+                    function showQuote() {
+                        const quotes = [
+                            "成功的人是那些在別人失敗時還在努力的人。",
+                            "生活不是等待風暴過去，而是學會在雨中翻船。",
+                            "永遠不要放棄做你自己。",
+                            "一切的困難都是暫時的。",
+                            "只有不斷學習，才能不斷進步。",
+                            "努力的意義就在於從失敗中學到教訓。",
+                            "今天的決定將決定明天的生活。",
+                            "夢想的路上沒有捷徑。",
+                            "不要等待，現在就是行動的最佳時機。"
+                        ];
+
+                        const quoteDisplay = document.getElementById('quoteDisplay');
+                        const randomIndex = Math.floor(Math.random() * quotes.length);
+                        quoteDisplay.textContent = quotes[randomIndex];
+                        quoteDisplay.style.display = 'block';
+                    }
+    </script>
+            </div>
+            <div id="c4" class="clr">
+                <div style="margin-bottom: 30px;">
+                    <button onclick="showRandomImage()">顯示隨機圖片</button>
+                </div>
+                <div>
+                    <button onclick="hideRandomImage()">關閉圖片</button>
+                </div>
+                <img id="randomImageDisplay" style="display: none;">
+                <script>
+                    function showRandomImage() {
+                        const images = [
+                            'image1.jpg',
+                            'image2.jpg',
+                            'image3.jpg',
+                            // 在這裡添加更多圖片的路徑
+                        ];
+            
+                        const randomIndex = Math.floor(Math.random() * images.length);
+                        const randomImageDisplay = document.getElementById('randomImageDisplay');
+                        randomImageDisplay.src = images[randomIndex];
+                        randomImageDisplay.style.display = 'block';
+                    }
+            
+                    function hideRandomImage() {
+                        const randomImageDisplay = document.getElementById('randomImageDisplay');
+                        randomImageDisplay.style.display = 'none';
+                    }
+                </script>
+            </div>
+            <div id="c5" class="clr">
+                <button onclick="showWeather()">顯示天氣資訊</button>
+                <p id="weatherInfo" style="display: none; margin-top: 30px;"></p>
+                <script>
+                    function showWeather() {
+                        // 這裡可以是您從天氣API獲取的資訊，這裡只是一個示例
+                        const weatherInfo = "今天的天氣晴，氣溫 25°C";
+                        const weatherInfoDisplay = document.getElementById('weatherInfo');
+                        weatherInfoDisplay.textContent = weatherInfo;
+                        weatherInfoDisplay.style.display = 'block';
+                    }
+                </script>
+            </div>
+            <div id="c6" class="clr">
+                <button onclick="startCountdown()">啟動倒數計時器</button>
+                <p id="countdownDisplay" style="display: none; margin-top: 30px;"></p>
+                <script>
+                    let countdownTimer;
+            
+                    function startCountdown() {
+                        const countdownDisplay = document.getElementById('countdownDisplay');
+                        const duration = 60; // 倒數計時器持續時間（秒）
+                        let timeLeft = duration;
+            
+                        countdownDisplay.textContent = formatTime(timeLeft);
+                        countdownDisplay.style.display = 'block';
+            
+                        countdownTimer = setInterval(() => {
+                            timeLeft--;
+                            countdownDisplay.textContent = formatTime(timeLeft);
+            
+                            if (timeLeft === 0) {
+                                clearInterval(countdownTimer);
+                                countdownDisplay.textContent = "倒數計時結束!";
+                            }
+                        }, 1000);
+                    }
+            
+                    function formatTime(seconds) {
+                        const minutes = Math.floor(seconds / 60);
+                        const remainingSeconds = seconds % 60;
+                        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+                    }
+                </script>
+            </div>
+            <div id="c7" class="clr">
+                <h3>投票系統</h3>
+                <div id="options">
+                    <input type="radio" id="option1" name="vote" value="option1">
+                    <label for="option1">選項 1</label><br>
+                    <input type="radio" id="option2" name="vote" value="option2">
+                    <label for="option2">選項 2</label><br>
+                    <input type="radio" id="option3" name="vote" value="option3">
+                    <label for="option3">選項 3</label><br>
+                </div>
+                <button onclick="vote()">提交投票</button>
+                <p id="voteResult" style="display: none; margin-top: 30px;"></p>
+                <script>
+                    function vote() {
+                        const options = document.getElementsByName('vote');
+                        let selectedOption;
+            
+                        for (const option of options) {
+                            if (option.checked) {
+                                selectedOption = option.value;
+                                break;
+                            }
+                        }
+            
+                        if (selectedOption) {
+                            const voteResultDisplay = document.getElementById('voteResult');
+                            voteResultDisplay.textContent = `您選擇了 ${selectedOption}`;
+                            voteResultDisplay.style.display = 'block';
+                        } else {
+                            alert("請選擇一個選項進行投票。");
+                        }
+                    }
+                </script>
+            </div>
+            <div id="c8" class="clr">
+                <h3>密碼生成器</h3>
+    <button onclick="generatePassword()">生成密碼</button>
+    <p id="passwordDisplay" style="margin-top: 40px; font-size: 30px;"></p>
+    <script>
+        function generatePassword() {
+            const length = 12;
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let password = "";
+            for (let i = 0, n = charset.length; i < length; ++i) {
+                password += charset.charAt(Math.floor(Math.random() * n));
+            }
+            document.getElementById('passwordDisplay').textContent = password;
+        }
+    </script>
+            </div>
+            <div id="c9" class="clr">
+                <h3>BMI 計算器</h3>
+                <label for="height">身高 (cm):</label>
+                <input type="number" id="height" style="width: 100%; margin-bottom: 10px;"><br>
+                <label for="weight">體重 (kg):</label>
+                <input type="number" id="weight" style="width: 100%; margin-bottom: 10px;"><br>
+                <button onclick="calculateBMI()">計算 BMI</button>
+                <p id="bmiResult" style="margin-top: 10px; font-size: 18px;"></p>
+                <script>
+                    function calculateBMI() {
+                        const height = parseFloat(document.getElementById('height').value) / 100; // 將 cm 轉換為 m
+                        const weight = parseFloat(document.getElementById('weight').value);
+                        if (!isNaN(height) && !isNaN(weight) && height > 0 && weight > 0) {
+                            const bmi = weight / (height * height);
+                            document.getElementById('bmiResult').textContent = `您的 BMI 是: ${bmi.toFixed(2)}`;
+                        } else {
+                            document.getElementById('bmiResult').textContent = '請輸入有效的身高和體重';
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
